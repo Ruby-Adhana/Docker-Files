@@ -1,0 +1,48 @@
+Container1
+docker run -d \
+  --name mysql-db \
+  -e MYSQL_ROOT_PASSWORD=rootpass \
+  -e MYSQL_DATABASE=mydb \
+  -e MYSQL_USER=myuser \
+  -e MYSQL_PASSWORD=mypass \
+  mysql:5.7
+
+
+Container2
+docker run -d \
+  --name web-app \
+  --link mysql-db:mysql \
+  -p 8080:80 \
+  -e WORDPRESS_DB_HOST=mysql-db:3306 \
+  -e WORDPRESS_DB_NAME=mydb \
+  -e WORDPRESS_DB_USER=myuser \
+  -e WORDPRESS_DB_PASSWORD=mypass \
+  wordpress:latest
+
+--link applicaton is depricated that's why next continer1 and 2 network based 
+but use and application both are same only change link to --network
+
+Container1
+docker run -d \
+  --name mysql-db \
+  --network mynet \
+  -e MYSQL_ROOT_PASSWORD=rootpass \
+  -e MYSQL_DATABASE=mydb \
+  -e MYSQL_USER=myuser \
+  -e MYSQL_PASSWORD=mypass \
+  mysql:5.7
+
+
+Container2
+docker run -d \
+  --name web-app \
+  --network mynet \
+  -p 8080:80 \
+  -e WORDPRESS_DB_HOST=mysql-db:3306 \
+  -e WORDPRESS_DB_NAME=mydb \
+  -e WORDPRESS_DB_USER=myuser \
+  -e WORDPRESS_DB_PASSWORD=mypass \
+  wordpress:latest
+
+
+
