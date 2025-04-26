@@ -1,0 +1,82 @@
+from flask import Flask, request, render_template, redirect, url_for, flash
+import mysql.connector
+
+app = Flask(__name__)
+app.secret_key = 'supersecretkey'
+
+def get_connection(database=None):
+    config = {
+        'host': 'mysql',
+        'user': 'root',
+        'password': '12345678',
+    }
+    if database:
+        config['database'] = database
+    return mysql.connector.connect(**config)
+
+@app.route('/')
+def index():
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("SHOW DATABASES;")
+    dbs = [db[0] for db in cursor.fetchall()]
+    cursor.close()
+    conn.close()
+
+    return render_template('index.html', databases=dbs)
+
+@app.route('/create_db', methods=['POST'])
+def create_db():
+    db_name = request.form['db_name']
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute(f"CREATE DATABASE {db_name}")
+        conn.commit()
+        flash(f"Database '{db_name}' created successfully.", "success")
+    except Exception as e:
+        flash(f"Error creating database: {e}", "danger")
+    finally:
+        cursor.close()
+        conn.close()
+    return redirect(url_for('index'))
+
+@app.route('/create_table', methods=['POST'])
+def create_table():
+    db_name = request.form['table_db']
+    table_name = request.form['table_name']
+    try:
+        conn = get_connection(db_name)
+        cursor = conn.cursor()
+        cursor.execute(f"""
+            CREATE TABLE {table_name} (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                name VARCHAR(100),
+                age INT
+            );
+        """)
+        conn.commit()
+        flash(f"Table '{table_name}' created in '{db_name}' database.", "success")
+    except Exception as e:
+        flash(f"Error creating table: {e}", "danger")
+    finally:
+        cursor.close()
+        conn.close()
+    return redirect(url_for('index'))
+
+@app.route('/view/<db>/<table>')
+def view_table(db, table):
+    try:
+        conn = get_connection(db)
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute(f"SELECT * FROM {table}")
+        rows = cursor.fetchall()
+        cursor.close()
+        conn.close()
+        return render_template("view_table.html", rows=rows, db=db, table=table)
+    except Exception as e:
+        return f"<h3>Error: {e}</h3>"
+
+if __name__ == '__main__':
+    app.run(host="0.0.0.0", port=5000)
+

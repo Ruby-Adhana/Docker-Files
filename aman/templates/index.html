@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Flask MySQL App</title>
+</head>
+<body>
+    <h2>Welcome to the Flask MySQL App</h2>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <p style="color: {{ 'green' if category == 'success' else 'red' }}">{{ message }}</p>
+      {% endfor %}
+    {% endwith %}
+
+    <h3>Create New Database</h3>
+    <form method="POST" action="/create_db">
+        <input type="text" name="db_name" placeholder="Database Name" required>
+        <input type="submit" value="Create">
+    </form>
+
+    <h3>Create New Table</h3>
+    <form method="POST" action="/create_table">
+        <input type="text" name="table_db" placeholder="Database Name" required>
+        <input type="text" name="table_name" placeholder="Table Name" required>
+        <input type="submit" value="Create Table">
+    </form>
+
+    <h3>All Databases</h3>
+    <ul>
+        {% for db in databases %}
+            <li>{{ db }}
+                {% if db in ['school', 'aman'] %}
+                    <ul>
+                        <li><a href="/view/{{ db }}/students">View '{{ db }}' → 'students'</a></li>
+                    </ul>
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
+

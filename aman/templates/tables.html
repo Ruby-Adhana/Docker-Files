@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tables in {{ dbname }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        h1 { color: #333; }
+        ul { padding: 0; }
+        li { list-style: none; margin: 8px 0; }
+        a { text-decoration: none; color: #007BFF; }
+        a:hover { text-decoration: underline; }
+        form { margin-top: 20px; }
+        input[type="text"] {
+            padding: 6px;
+            font-size: 16px;
+            width: 200px;
+        }
+        button {
+            padding: 6px 12px;
+            font-size: 16px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover { background-color: #218838; }
+    </style>
+</head>
+<body>
+    <h1>Tables in <em>{{ dbname }}</em></h1>
+    <ul>
+        {% for table in tables %}
+            <li><a href="{{ url_for('show_table_data', dbname=dbname, tablename=table) }}">{{ table }}</a></li>
+        {% endfor %}
+    </ul>
+
+    <h2>Create New Table in {{ dbname }}</h2>
+    <form action="/create_table/{{ dbname }}" method="post">
+        <input type="text" name="tablename" placeholder="Table name" required>
+        <input type="text" name="columns" placeholder="Columns (e.g. name VARCHAR(255), age INT)" required>
+        <button type="submit">Create Table</button>
+    </form>
+
+    <br><a href="{{ url_for('list_databases') }}">← Back to All Databases</a>
+</body>
+</html>
+
