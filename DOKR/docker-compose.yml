@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  mysql-db:
+    image: mysql:5.7
+    container_name: mysql-db
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: mydb
+      MYSQL_USER: myuser
+      MYSQL_PASSWORD: mypass
+    networks:
+      - mynet
+
+  web-app:
+    image: wordpress:latest
+    container_name: web-app
+    ports:
+      - "8080:80"
+    environment:
+      WORDPRESS_DB_HOST: mysql-db:3306
+      WORDPRESS_DB_NAME: mydb
+      WORDPRESS_DB_USER: myuser
+      WORDPRESS_DB_PASSWORD: mypass
+    depends_on:
+      - mysql-db
+    networks:
+      - mynet
+
+networks:
+  mynet:
+
