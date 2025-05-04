@@ -1,32 +1,61 @@
-version: '3.8'
-
-services:
-  mysql-db:
-    image: mysql:5.7
-    container_name: mysql-db
-    environment:
-      MYSQL_ROOT_PASSWORD: rootpass
-      MYSQL_DATABASE: mydb
-      MYSQL_USER: myuser
-      MYSQL_PASSWORD: mypass
-    networks:
-      - mynet
-
-  web-app:
-    image: wordpress:latest
-    container_name: web-app
-    ports:
-      - "8080:80"
-    environment:
-      WORDPRESS_DB_HOST: mysql-db:3306
-      WORDPRESS_DB_NAME: mydb
-      WORDPRESS_DB_USER: myuser
-      WORDPRESS_DB_PASSWORD: mypass
-    depends_on:
-      - mysql-db
-    networks:
-      - mynet
-
-networks:
-  mynet:
-
+version: "3.8" 
+services: 
+  web1: 
+    build: 
+      context: ./python 
+      dockerfile: ../customdirdockerfile/dockfile23 
+      args: 
+        PYTHON_VERSION: "3.10" 
+    image: myflaskapp 
+    container_name: flask-app-container-1 
+    ports: 
+      - "5000:5000" 
+    networks: 
+      - app-network1 
+    depends_on: 
+      - redis1 
+    environment: 
+      - REDIS_HOST=redis1 
+ 
+  redis1: 
+    image: redis:alpine 
+    container_name: redis-container1  
+ 
+    networks: 
+      - app-network1 
+    volumes: 
+      - ./adhana:/data 
+      - redis1-volume:/extra-data2 
+ 
+  web2: 
+    build: 
+      context: ./python 
+      dockerfile: ../customdirdockerfile/dockfile23 
+      args: 
+        PYTHON_VERSION: "3.9" 
+    image: myflaskapp 
+    container_name: flask-app-container-2 
+    ports: 
+      - "5001:5000" 
+    networks: 
+      - app-network2 
+    depends_on: 
+      - redis2 
+    environment: 
+      - REDIS_HOST=redis2 
+ 
+  redis2: 
+    image: redis:alpine 
+    container_name: redis-container2 
+    networks: 
+      - app-network2 
+    volumes: 
+      - ./gujjar:/data 
+      - redis2-volume:/extradata2 
+ 
+networks: 
+  app-network1: 
+  app-network2: 
+volumes: 
+  redis1-volume: 
+  redis2-volume: 
